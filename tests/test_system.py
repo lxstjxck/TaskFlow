@@ -17,4 +17,4 @@ class TestSystem(unittest.TestCase):
     def test_add_task_post(self):
         response = self.client.post("/add", data={"title": "New Task"}, follow_redirects=True)
         self.assertEqual(response.status_code, 200)
-        self.assertIn(b"NewTask", response.data)
+        self.assertIn(b"New Task", response.data)
