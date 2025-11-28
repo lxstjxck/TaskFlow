@@ -2,8 +2,9 @@ import unittest
 from main import main_app, init_db
 
 class TestSystem(unittest.TestCase):
-    def SetUp(self):
+    def setUp(self):
         init_db()
+        main_app.config['TESTING'] = True
         self.client = main_app.test_client()
 
     # проверка загрузки главной страницы
