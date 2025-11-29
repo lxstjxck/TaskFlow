@@ -14,6 +14,9 @@ def init_db():
                      done BOOLEAN DEFAULT 0
                      )
                 """)
+        if main_app.config["TESTING"]:
+            conn.execute("DELETE FROM tasks")
+            conn.execute("DELETE FROM sqlite_sequence WHERE name='tasks'")
         conn.commit()
 
 def get_all_tasks(order_by=None, search=None):
@@ -50,15 +53,16 @@ def add_task():
 # изменить таск
 @main_app.route("/edit/<int:task_id>", methods=["GET", "POST"])
 def edit_task(task_id):
-    with sqlite3.connect(DB_PATH) as conn:
-        if request.method == "POST":
-            new_title = request.form["title"]
+    if request.method == "POST":
+        new_title = request.form["title"]
+        with sqlite3.connect(DB_PATH) as conn:
             conn.execute("UPDATE tasks SET title=? WHERE id=?", (new_title, task_id))
             conn.commit()
-            return redirect(url_for("index"))
+        return redirect(url_for("index"))
+
+    with sqlite3.connect(DB_PATH) as conn:
         task = conn.execute("SELECT * FROM tasks WHERE id=?", (task_id,)).fetchone()
     return render_template("edit.html", task=task)
-
 
 # таск выполнен
 @main_app.route("/done/<int:task_id>")
@@ -95,16 +99,32 @@ def api_add():
     return jsonify({"status": "ok"})
 
 
-@main_app.route("/api/done/<int:task_id>", methods=["PATCH"])
+@main_app.route("/api/done/<int:task_id>", methods=["POST", "PATCH"])
 def api_done(task_id):
     with sqlite3.connect(DB_PATH) as conn:
         conn.execute("UPDATE tasks SET done=1 WHERE id=?", (task_id,))
         conn.commit()
     return jsonify({"status": "done"})
 
+
+@main_app.route("/api/get/<int:task_id>", methods=["GET"])
+def api_get(task_id):
+    with sqlite3.connect(DB_PATH) as conn:
+        task = conn.execute("SELECT * FROM tasks WHERE id=?", (task_id,)).fetchone()
+    if task:
+        return jsonify({"id": task[0], "title": task[1], "done": bool(task[2])})
+    return jsonify({"error": "Not found"}), 404
+
+
+@main_app.route("/api/delete/<int:task_id>", methods=["DELETE"])
+def api_delete(task_id):
+    with sqlite3.connect(DB_PATH) as conn:
+        conn.execute("DELETE FROM tasks WHERE id=?", (task_id,))
+        conn.commit()
+    return jsonify({"status": "deleted"})
+
+
 if __name__ == "__main__":
-    if os.path.exists(DB_PATH):
-        os.remove(DB_PATH)
     init_db()
     main_app.run(debug=True)
     

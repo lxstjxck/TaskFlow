@@ -9,9 +9,7 @@
     {% for t in tasks %}
     <li>
         {% if t[2] %}
-        <s>
-            {{ t[1] }}
-        </s>
+            <s>{{ t[1] }}</s>
         {% else %}
             {{ t[1] }} <a href="/done/{{ t[0] }}">✔</a>
         {% endif %}

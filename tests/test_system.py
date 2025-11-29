@@ -1,11 +1,15 @@
 import unittest
-from main import main_app, init_db
+import sqlite3
+from main import main_app, init_db, DB_PATH
 
 class TestSystem(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        init_db()
         main_app.config["TESTING"] = True
+        init_db()
+        with sqlite3.connect(DB_PATH) as conn:
+            conn.execute("DELETE FROM tasks")
+            conn.execute("DELETE FROM sqlite_sequence WHERE name='tasks'")
         cls.client = main_app.test_client()
 
     def test_index_page(self):
@@ -28,7 +32,7 @@ class TestSystem(unittest.TestCase):
         # Отметить как выполненную
         self.client.get("/done/1", follow_redirects=True)
         res = self.client.get("/")
-        self.assertIn(b"<s>Edited</s>".encode(), res.data)
+        self.assertIn(b"<s>Edited</s>", res.data)
 
         # Удалить
         self.client.get("/delete/1", follow_redirects=True)
