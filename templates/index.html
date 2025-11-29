@@ -4,7 +4,7 @@
     <input type="text" name="title" placeholder="Новая задача" required>
     <button type="submit">Добавить</button>
 </form>
-
+<div class="list">
 <ul>
     {% for t in tasks %}
     <li>
@@ -16,7 +16,9 @@
             {{ t[1] }} <a href="/done/{{ t[0] }}">✔</a>
         {% endif %}
         <a href="/delete/{{ t[0] }}">✘</a>
+        <a href="/edit/{{ t[0] }}">✏️</a>
     </li>
     {% endfor %}
 </ul>
+</div>
 {% endblock %}

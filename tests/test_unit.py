@@ -1,10 +1,8 @@
 import unittest
-from main import init_db
+from main import init_db, get_all_tasks
 
 class TestUnit(unittest.TestCase):
-    # БД создается без ошибок
-    def test_db_creation(self):
-        try:
-            init_db()
-        except Exception as e:
-            self.fail(f"init_db вызвал исключение: {e}")
+    def test_db_init_and_fetch(self):
+        init_db()
+        tasks = get_all_tasks()
+        self.assertIsInstance(tasks, list)

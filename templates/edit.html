@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h2>Редактировать задачу</h2>
+
+<form action="/edit/{{ task[0] }}" method="post">
+  <input type="text" name="title" value="{{ task[1] }}" required>
+  <button type="submit">Сохранить</button>
+</form>
+
+<a href="/">⬅ Назад</a>
+{% endblock %}
